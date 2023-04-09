@@ -18,6 +18,7 @@ class Lexer {
 
     Token make_number();
     Token make_identifier();
+    Token make_equals();
     Token make_not_equals();
     Token make_less_than_or_bitwise_left();
     Token make_greater_than_or_bitwise_right();

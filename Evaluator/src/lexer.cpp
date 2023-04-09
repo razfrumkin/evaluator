@@ -38,6 +38,18 @@ Token Lexer::make_identifier() {
     return Token(IDENTIFIER, value);
 }
 
+Token Lexer::make_equals() {
+    const char* const start = code->c_str() + position;
+    advance();
+
+    if (current == '=') {
+        advance();
+        return Token(EQUALS, std::string_view(start, code->c_str() + position - start));
+    }
+
+    return Token(EQUALS, std::string_view(0, 0));
+}
+
 Token Lexer::make_not_equals() {
     const char* const start = code->c_str() + position;
     advance();
@@ -118,6 +130,10 @@ std::vector<Token> Lexer::make_tokens() {
         } else if (current == ')') {
             tokens.push_back(Token(RPAREN));
             advance();
+        } else if (current == '=') {
+            Token token = make_equals();
+            if (!token.value.size()) return {};
+            tokens.push_back(token);
         } else if (current == '!') {
             Token token = make_not_equals();
             if (!token.value.size()) return {};
