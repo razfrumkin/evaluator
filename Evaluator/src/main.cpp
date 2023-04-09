@@ -15,60 +15,60 @@ struct Number {
 };
 
 struct Interpreter {
-    Number visit(Expression* node) {
-        if (auto n = dynamic_cast<NumberExpression*>(node)) {
-            return visit_number_node(n);
-        } else if (auto n = dynamic_cast<UnaryOperationExpression*>(node)) {
-            return visit_unary_operation_node(n);
-        } else if (auto n = dynamic_cast<BinaryOperationExpression*>(node)) {
-            return visit_binary_operation_node(n);
-        }
+    Number visit(Expression* expression) {
+        if (auto node = dynamic_cast<NumberExpression*>(expression))
+            return visit_number_node(node);
+        if (auto node = dynamic_cast<UnaryOperationExpression*>(expression))
+            return visit_unary_operation_node(node);
+        if (auto node = dynamic_cast<BinaryOperationExpression*>(expression))
+            return visit_binary_operation_node(node);
 
         std::cerr << "Something went really wrong" << std::endl;
         return Number(0, false);
     }
 
-    Number visit_number_node(NumberExpression* node) {
-        return Number(std::atof(std::string(node->token.value).c_str()), node->token.type == FLOAT);
+    Number visit_number_node(NumberExpression* expression) {
+        return Number(std::atof(std::string(expression->token.value).c_str()), expression->token.type == FLOAT);
     }
 
-    Number visit_unary_operation_node(UnaryOperationExpression* node) {
-        auto number = visit(node->expression.get());
+    Number visit_unary_operation_node(UnaryOperationExpression* expression) {
+        auto number = visit(expression->expression.get());
 
-        if (node->op.type == BITWISE_NEGATION) {
+        if (expression->op.type == BITWISE_NEGATION) {
             if (number.is_float) {
                 std::cerr << "Cannot have a float in bitwise negation";
                 return Number(0, false);
             }
             return Number(~static_cast<std::int64_t>(number.value), false);
         }
-        if (node->op.type == PLUS) return Number(number.value, number.is_float);
-        if (node->op.type == MINUS) return Number(-number.value, number.is_float);
-        if (node->op.type == NOT) return Number(!static_cast<int>(number.value), false);
+        if (expression->op.type == PLUS) return Number(number.value, number.is_float);
+        if (expression->op.type == MINUS) return Number(-number.value, number.is_float);
+        if (expression->op.type == NOT) return Number(!static_cast<int>(number.value), false);
         return Number(0, false);
     }
 
-    Number visit_binary_operation_node(BinaryOperationExpression* node) {
-        auto left = visit(node->left.get());
-        auto right = visit(node->right.get());
+    Number visit_binary_operation_node(BinaryOperationExpression* expression) {
+        auto left = visit(expression->left.get());
+        auto right = visit(expression->right.get());
 
-        if (node->op.type == BITWISE_NEGATION) {
+        // TODO: use a switch statement
+        if (expression->op.type == BITWISE_NEGATION) {
             std::cerr << "Bit negation cannot be used as a binary operator" << std::endl;
             return Number(0, false);
         }
-        if (node->op.type == PLUS) {
+        if (expression->op.type == PLUS) {
             if (left.is_float || right.is_float) return Number(left.value + right.value, true);
             return Number(static_cast<std::int64_t>(left.value) + static_cast<std::int64_t>(right.value), false);
         }
-        if (node->op.type == MINUS) {
+        if (expression->op.type == MINUS) {
             if (left.is_float || right.is_float) return Number(left.value - right.value, true);
             return Number(static_cast<std::int64_t>(left.value) - static_cast<std::int64_t>(right.value), false);
         }
-        if (node->op.type == MUL) {
+        if (expression->op.type == MUL) {
             if (left.is_float || right.is_float) return Number(left.value * right.value, true);
             return Number(static_cast<std::int64_t>(left.value) * static_cast<std::int64_t>(right.value), false);
         }
-        if (node->op.type == DIV) {
+        if (expression->op.type == DIV) {
             if (left.is_float || right.is_float) return Number(left.value / right.value, true);
             if (right.value == 0) {
                 std::cerr << "Cannot divide integer by zero" << std::endl;
@@ -76,7 +76,7 @@ struct Interpreter {
             }
             return Number(static_cast<std::int64_t>(left.value) / static_cast<std::int64_t>(right.value), false);
         }
-        if (node->op.type == MOD) {
+        if (expression->op.type == MOD) {
             if (left.is_float || right.is_float) {
                 std::cerr << "Cannot have a float in modulo operation" << std::endl;
                 return Number(0, false);
@@ -87,62 +87,62 @@ struct Interpreter {
             }
             return Number(static_cast<std::int64_t>(left.value) % static_cast<std::int64_t>(right.value), false);
         }
-        if (node->op.type == BITWISE_LEFT) {
+        if (expression->op.type == BITWISE_LEFT) {
             if (left.is_float || right.is_float) {
                 std::cerr << "Cannot have a float in bitwise-left operation" << std::endl;
                 return Number(0, false);
             }
             return Number(static_cast<std::int64_t>(left.value) << static_cast<std::int64_t>(right.value), false);
         }
-        if (node->op.type == BITWISE_RIGHT) {
+        if (expression->op.type == BITWISE_RIGHT) {
             if (left.is_float || right.is_float) {
                 std::cerr << "Cannot have a float in bitwise-right operation" << std::endl;
                 return Number(0, false);
             }
             return Number(static_cast<std::int64_t>(left.value) >> static_cast<std::int64_t>(right.value), false);
         }
-        if (node->op.type == POW) {
+        if (expression->op.type == POW) {
             return Number(std::pow(left.value, right.value), true);
         }
-        if (node->op.type == EQUALS) {
+        if (expression->op.type == EQUALS) {
             return Number(left.value == right.value, false);
         }
-        if (node->op.type == NOT_EQUALS) {
+        if (expression->op.type == NOT_EQUALS) {
             return Number(left.value != right.value, false);
         }
-        if (node->op.type == LESS_THAN) {
+        if (expression->op.type == LESS_THAN) {
             return Number(left.value < right.value, false);
         }  
-        if (node->op.type == GREATER_THAN) {
+        if (expression->op.type == GREATER_THAN) {
             return Number(left.value > right.value, false);
         }
-        if (node->op.type == LESS_THAN_OR_EQUALS) {
+        if (expression->op.type == LESS_THAN_OR_EQUALS) {
             return Number(left.value <= right.value, false);
         }
-        if (node->op.type == GREATER_THAN_OR_EQUALS) {
+        if (expression->op.type == GREATER_THAN_OR_EQUALS) {
             return Number(left.value >= right.value, false);
         }
-        if (node->op.type == AND) {
+        if (expression->op.type == AND) {
             return Number(left.value && right.value, false);
         }
-        if (node->op.type == OR) {
+        if (expression->op.type == OR) {
             return Number(left.value || right.value, false);
         }
-        if (node->op.type == BITWISE_AND) {
+        if (expression->op.type == BITWISE_AND) {
             if (left.is_float || right.is_float) {
                 std::cerr << "Cannot have a float in bitwise-and" << std::endl;
                 return Number(0, false);
             }
             return Number(static_cast<std::int64_t>(left.value) & static_cast<std::int64_t>(right.value), false);
         }
-        if (node->op.type == BITWISE_OR) {
+        if (expression->op.type == BITWISE_OR) {
             if (left.is_float || right.is_float) {
                 std::cerr << "Cannot have a float in bitwise-or" << std::endl;
                 return Number(0, false);
             }
             return Number(static_cast<std::int64_t>(left.value) | static_cast<std::int64_t>(right.value), false);
         }
-        if (node->op.type == BITWISE_XOR) {
+        if (expression->op.type == BITWISE_XOR) {
             if (left.is_float || right.is_float) {
                 std::cerr << "Cannot have a float in bitwise-xor" << std::endl;
                 return Number(0, false);
@@ -164,6 +164,7 @@ static double execute(std::string* code) {
     auto ast = parser.parse();
 
     if (!ast) return 0;
+    ast->print("", false);
 
     Interpreter interpreter;
     auto result = interpreter.visit(ast.get());
