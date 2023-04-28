@@ -24,6 +24,6 @@ An evaluator that can work with integer and boolean expressions as well as bitwi
   - Greater than or equal (`>=`)
 
 ## Notes
-- Diving between two integers will always result in an integer.
+- Dividing between two integers will always result in an integer.
 - Boolean expression are represented in 1 and 0 for true and false respectively.
 - Errors are not handled yet so the evaluator would output `0` for syntax errors.
