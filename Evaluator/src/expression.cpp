@@ -5,16 +5,16 @@ void Expression::print(const std::string& prefix, const bool isLeft) const {
 }
 
 void NumberExpression::print(const std::string& prefix, const bool isLeft) const {
-    std::cout << prefix + (isLeft ? "├──" : "└──" ) << token.value << std::endl;
+    std::cout << prefix + (isLeft ? "├──" : "└──") << token.value << std::endl;
 }
 
 void BinaryOperationExpression::print(const std::string& prefix, const bool isLeft) const {
-    std::cout << prefix + (isLeft ? "├──" : "└──" ) << stringify_token_type(op.type) << std::endl;
+    std::cout << prefix + (isLeft ? "├──" : "└──") << stringify_token_type(op.type) << std::endl;
     left->print(prefix + (isLeft ? "│   " : "    "), true);
     right->print(prefix + (isLeft ? "│   " : "    "), false);
 }
 
 void UnaryOperationExpression::print(const std::string& prefix, const bool isLeft) const {
-    std::cout << prefix + (isLeft ? "├──" : "└──" ) << stringify_token_type(op.type) << std::endl;
+    std::cout << prefix + (isLeft ? "├──" : "└──") << stringify_token_type(op.type) << std::endl;
     expression->print(prefix + (isLeft ? "│   " : "    "), false);
 }
