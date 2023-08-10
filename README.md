@@ -25,5 +25,6 @@ An evaluator that can work with integer and boolean expressions as well as bitwi
 
 ## Notes
 - Dividing between two integers will always result in an integer.
+- Integers are not divisible by zero.
 - Boolean expression are represented in 1 and 0 for true and false respectively.
-- Errors are not handled yet so the evaluator would output `0` for syntax errors.
+- Errors are partially handled so the evaluator would output `NaN` for syntax errors.

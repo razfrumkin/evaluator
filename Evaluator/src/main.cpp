@@ -2,6 +2,7 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <limits>
 
 #include "lexer.hpp"
 #include "parser.hpp"
@@ -24,7 +25,7 @@ struct Interpreter {
             return visit_binary_operation_node(node);
 
         std::cerr << "Something went really wrong" << std::endl;
-        return Number(0, false);
+        return Number(std::numeric_limits<double>::quiet_NaN(), false);
     }
 
     Number visit_number_node(NumberExpression* expression) {
@@ -163,7 +164,7 @@ static double execute(std::string* code) {
     Parser parser(tokens);
     auto ast = parser.parse();
 
-    if (!ast) return 0;
+    if (!ast) return std::numeric_limits<double>::quiet_NaN();
     ast->print("", false);
 
     Interpreter interpreter;
